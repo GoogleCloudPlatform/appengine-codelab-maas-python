@@ -7,8 +7,11 @@ import jinja2
 import webapp2
 from PIL import Image
 
+from google.appengine.api import users
+
 import meme
 
+TODO = None
 
 JINJA_ENV = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -40,8 +43,26 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         """Render an HTML form for creating Memes."""
         template = JINJA_ENV.get_template('index.html')
-        context = {'templates': sorted(MEME_TEMPLATES.keys()),
-                   'fonts': sorted(MEME_FONTS.keys())}
+        # step-1
+        # Obtain information of the current signed in user.
+        user = TODO
+        if user:
+            nickname = user.nickname()
+            link_text = 'Logout'
+            # step-1
+            # Create a URL for loging out from the app.
+            link_url = TODO
+        else:
+            nickname = 'Anonymous user'
+            link_text = 'Login'
+            link_url = users.create_login_url(self.request.uri)
+        context = {
+            'templates': sorted(MEME_TEMPLATES.keys()),
+            'fonts': sorted(MEME_FONTS.keys()),
+            'nickname': nickname,
+            'link_text': link_text,
+            'link_url': link_url
+        }
         self.response.out.write(template.render(context))
 
 
