@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from collections import OrderedDict
 
 import jinja2
 import webapp2
@@ -17,12 +18,14 @@ JINJA_ENV = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'])
 
-MEME_TEMPLATES = {
+JINJA_TEMPLATE = JINJA_ENV.get_template('index.html')
+
+MEME_TEMPLATES = OrderedDict({
     'happyboy': 'happyboy.jpeg',
     'rapperboy': 'rapperboy.jpeg',
     'realappengine': 'realappengine.jpeg',
     'shrugging': 'shrugging.jpeg',
-}
+})
 
 DEFAULT_TEMPLATE = 'happyboy.jpeg'
 
@@ -42,7 +45,6 @@ class MainHandler(webapp2.RequestHandler):
 
     def get(self):
         """Render an HTML form for creating Memes."""
-        template = JINJA_ENV.get_template('index.html')
         # step-1
         # Obtain information of the current signed in user.
         user = users.get_current_user()
@@ -57,13 +59,13 @@ class MainHandler(webapp2.RequestHandler):
             link_text = 'Login'
             link_url = users.create_login_url(self.request.uri)
         context = {
-            'templates': sorted(MEME_TEMPLATES.keys()),
-            'fonts': sorted(MEME_FONTS.keys()),
+            'templates': MEME_TEMPLATES.keys(),
+            'fonts': MEME_FONTS.keys(),
             'nickname': nickname,
             'link_text': link_text,
             'link_url': link_url
         }
-        self.response.out.write(template.render(context))
+        self.response.out.write(JINJA_TEMPLATE.render(context))
 
 
 class ImageHandler(webapp2.RequestHandler):
